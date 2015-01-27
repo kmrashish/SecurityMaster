@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
-
+using System.Collections;
 
 
 using System.Data;namespace secmversion2
@@ -39,287 +39,122 @@ using System.Data;namespace secmversion2
             //dt.Load(reader);
 
             //writing a .csv parser and inserting data into the tables
-                     
-            string[] allData = System.IO.File.ReadAllLines(@"C:\Users\ashikumar\Downloads\Data for securities.csv");
+
+            Hashtable equityHashTable = new Hashtable();
+            equityHashTable.Add("Security Name", "security_name");
+            equityHashTable.Add("Security Description", "security_description");
+            equityHashTable.Add("Has Position", "has_position");
+            equityHashTable.Add("Is Active Security", "is_active");
+            equityHashTable.Add("Lot Size", "round_lot_size");
+            equityHashTable.Add("BBG Unique Name", "bloomberg_unique_name");
+            equityHashTable.Add("CUSIP", "cusip");
+            equityHashTable.Add("ISIN", "isin");
+            equityHashTable.Add("SEDOL", "sedol");
+            equityHashTable.Add("Bloomberg Ticker", "bloomberg_ticker");
+            equityHashTable.Add("Bloomberg Unique ID", "bloomberg_unique_id");
+            equityHashTable.Add("BBG Global ID", "bloomberg_global_id");
+            equityHashTable.Add("Ticker and Exchange", "bloombert_ticker_and_exchange");
+            equityHashTable.Add("Is ADR Flag", "is_adr");
+            equityHashTable.Add("ADR Underlying Ticker", "adr_underlying_ticker");
+            equityHashTable.Add("ADR Underlying Currency", "adr_underlying_currency");
+            equityHashTable.Add("Shares Per ADR","shares_per_adr");
+            equityHashTable.Add("IPO Date","ipo_date");
+            equityHashTable.Add("Pricing Currency","price_currency");
+            equityHashTable.Add("Settle Days","settle_days");
+            equityHashTable.Add("Total Shares Outstanding","shares_outstanding");
+            equityHashTable.Add("Voting Rights Per Share","voting_rights_per_share");
+            equityHashTable.Add("Average Volume - 20D","twenty_day_average_volume");
+            equityHashTable.Add("Beta","beta");
+            equityHashTable.Add("Short Interest","short_interest");
+            equityHashTable.Add("Return - YTD","ytd_return");
+            equityHashTable.Add("Volatility - 90D","ninty_day_price_volatility");
+            equityHashTable.Add("PF Asset Class","form_pf_asset_class");
+            equityHashTable.Add("PF Country","form_pf_country");
+            equityHashTable.Add("PF Credit Rating","form_pf_credit_rating");
+            equityHashTable.Add("PF Currency","form_pf_currency");
+            equityHashTable.Add("PF Instrument","form_pf_instrument");
+            equityHashTable.Add("PF Liquidity Profile","form_pf_liquid_profile");
+            equityHashTable.Add("PF Maturity","form_pf_maturity");
+            equityHashTable.Add("PF NAICS Code","form_pf_naics_code");
+            equityHashTable.Add("PF Region","form_pf_region");
+            equityHashTable.Add("PF Sector","form_pf_sector");
+            equityHashTable.Add("PF Sub Asset Class","form_pf_sub_asset_class");
+            equityHashTable.Add("Country of Issuance","issue_country");
+            equityHashTable.Add("Exchange","exchange");
+            equityHashTable.Add("Issuer","issuer");
+            equityHashTable.Add("Issue Currency","issue_currency");
+            equityHashTable.Add("Trading Currency","trading_currency");
+            equityHashTable.Add("BBG Industry Sub Group","bloomberg_industry_sub_group");            
+            equityHashTable.Add("Bloomberg Industry Group","bloomberg_industry_group");
+            equityHashTable.Add("Bloomberg Sector","bloomberg_industry_sector");
+            equityHashTable.Add("Country of Incorporation","country_of_incorporation");
+            equityHashTable.Add("Risk Currency","risk_currency");
+            equityHashTable.Add("Open Price","open_price");
+            equityHashTable.Add("Close Price","close_price");
+            equityHashTable.Add("Volume","volume");
+            equityHashTable.Add("Last Price","last_price");
+            equityHashTable.Add("Ask Price","ask_price");
+            equityHashTable.Add("Bid Price","bid_price");
+            equityHashTable.Add("PE Ratio","pe_ratio");
+            equityHashTable.Add("Dividend Declared Date","declared_date");
+            equityHashTable.Add("Dividend Ex Date","ex_date");
+            equityHashTable.Add("Dividend Record Date","record_date");
+            equityHashTable.Add("Dividend Pay Date","pay_date");
+            equityHashTable.Add("Dividend Amount","amount");
+            equityHashTable.Add("Frequency","frequency");
+            equityHashTable.Add("Dividend Type","dividend_type");
+
+            //Hashtable bondHashTable = new Hashtable();
+            //bondHashTable.Add();
+            //similarily form the hashtable for the mapping of the bond file field names and the column names in the database tables
+            //form the insertion queries for the bond type in the same manner or call the stored procedures as per required
+
+            
+
+            string[] allData = System.IO.File.ReadAllLines(@"E:\Indus Valley Partners\SecurityMaster\Data for securities.csv");
             string attributeHeadersUnseperated = allData[0];
-            string[] attributeHeadersSeperated = attributeHeadersUnseperated.Split('|');
+            string[] attributeHeadersSeperated = attributeHeadersUnseperated.Split(',');
+
+            string queryHeadersPart = string.Empty;
 
             foreach (string s in attributeHeadersSeperated)
             {
                 Console.Write(s);
-            }
+                if(s!=string.Empty)queryHeadersPart += equityHashTable[s]+",";
 
+            }
+            queryHeadersPart.TrimStart(',');
+            queryHeadersPart.TrimEnd(',');
+
+            Console.WriteLine("\n");
+            Console.WriteLine(queryHeadersPart);
+            Console.WriteLine();
+
+
+            string queryValues = string.Empty;
             string dataRowUnseperated = allData[1];
 
-            string[] dataRowSeperated = dataRowUnseperated.Split('|');
+            string[] dataRowSeperated = dataRowUnseperated.Split(',');
+
             foreach (string dr in dataRowSeperated)
             {
-                Console.Write(dr);
-            }
+                Console.Write(dr);                
+                if(dr!=string.Empty)queryValues += dr + ",";
+                //Console.WriteLine("\n");
+            } queryValues.TrimEnd(',');
 
-            Console.Write("\n");
+            Console.Write(queryValues);
 
-            Console.Write(attributeHeadersSeperated[1]);
+            // after fetching the values for each data row, do the insertion for that row
+            string query="insert into table_name ("+queryHeadersPart+") values ("+queryValues+")";
 
-            string[] EquityFieldNamesFromFile = {
-                                            "Security Name",
-                                            "Security Description",
-                                            "Has Position",
-                                            "Is Active Security",
-                                            "Lot Size",
-                                            "BBG Unique Name",
-                                            "CUSIP",
-                                            "ISIN",
-                                            "SEDOL",
-                                            "Bloomberg Ticker",
-                                            "Bloomberg Unique ID",
-                                            "BBG Global ID",
-                                            "Ticker and Exchange",
-                                            "Is ADR Flag",
-                                            "ADR Underlying Ticker",
-                                            "ADR Underlying Currency",
-                                            "Shares Per ADR",
-                                            "IPO Date",
-                                            "Pricing Currency",
-                                            "Settle Days",
-                                            "Total Shares Outstanding",
-                                            "Voting Rights Per Share",
-                                            "Average Volume - 20D",
-                                            "Beta",
-                                            "Short Interest",
-                                            "Return - YTD",
-                                            "Volatility - 90D",
-                                            "PF Asset Class",
-                                            "PF Country",
-                                            "PF Credit Rating",
-                                            "PF Currency",
-                                            "PF Instrument",
-                                            "PF Liquidity Profile",
-                                            "PF Maturity",
-                                            "PF NAICS Code",
-                                            "PF Region",
-                                            "PF Sector",
-                                            "PF Sub Asset Class",
-                                            "Country of Issuance",
-                                            "Exchange",
-                                            "Issuer",
-                                            "Issue Currency",
-                                            "Trading Currency",
-                                            "BBG Industry Sub Group",
-                                            "Bloomberg Industry Group",
-                                            "Bloomberg Sector",
-                                            "Country of Incorporation",
-                                            "Risk Currency",
-                                            "Open Price",
-                                            "Close Price",
-                                            "Volume",
-                                            "Last Price",
-                                            "Ask Price",
-                                            "Bid Price",
-                                            "PE Ratio",
-                                            "Dividend Declared Date",
-                                            "Dividend Ex Date",
-                                            "Dividend Record Date",
-                                            "Dividend Pay Date",
-                                            "Dividend Amount",
-                                            "Frequency",
-                                            "Dividend Type"
-                                          };
-            string[] ActualEquityDBFieldNames = {
-                                             "security_name",
-                                            "security_description",
-                                            "has_position",
-                                            "is_active",
-                                            "round_lot_size",
-                                            "bloomberg_unique_name",
-                                            "cusip",
-                                            "isin",
-                                            "sedol",
-                                            "bloomberg_ticker",
-                                            "bloomberg_unique_id",
-                                            "bloomberg_global_id",
-                                            "bloombert_ticker_and_exchange",
-                                            "is_adr",
-                                            "adr_underlying_ticker",
-                                            "adr_underlying_currency",
-                                            "shares_per_adr",
-                                            "ipo_date",
-                                            "price_currency",
-                                            "settle_days",
-                                            "shares_outstanding",
-                                            "voting_rights_per_share",
-                                            "twenty_day_average_volume",
-                                            "beta",
-                                            "short_interest",
-                                            "ytd_return",
-                                            "ninty_day_price_volatility",
-                                            "form_pf_asset_class",
-                                            "form_pf_country",
-                                            "form_pf_credit_rating",
-                                            "form_pf_currency",
-                                            "form_pf_instrument",
-                                            "for_pf_liquid_profile",
-                                            "form_pf_maturity",
-                                            "form_pf_naics_code",
-                                            "form_pf_region",
-                                            "form_pf_sector",
-                                            "form_pf_sub_asset_class",
-                                            "issue_country",
-                                            "exchange",
-                                            "issuer",
-                                            "issue_currency",
-                                            "trading_currency",
-                                            "bloomberg_industry_sub_group",
-                                            "bloomberg_industry_group",
-                                            "bloomberg_industry_sector",
-                                            "country_of_incorporation",
-                                            "risk_currency",
-                                            "open_price",
-                                            "close_price",
-                                            "volume",
-                                            "last_price",
-                                            "ask_price",
-                                            "bid_price",
-                                            "pe_ratio",
-                                            "declared_date",
-                                            "ex_date",
-                                            "record_date",
-                                            "pay_date",
-                                            "amount",
-                                            "frequency",
-                                            "dividend_type"
-                                          };
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine(query);
 
-            string[] BondFieldNamesFromFile = {
-                                            "Security Description",
-                                            "Security Name",
-                                            "Asset Type",
-                                            "Investment Type",
-                                            "Trading Factor",
-                                            "Pricing Factor",
-                                            "ISIN",
-                                            "BBG Ticker",
-                                            "BBG Unique ID",
-                                            "CUSIP",
-                                            "SEDOL",
-                                            "First Coupon Date",
-                                            "Cap",
-                                            "Floor",
-                                            "Coupon Frequency",
-                                            "Coupon",
-                                            "Coupon Type",
-                                            "Spread",
-                                            "Callable Flag",
-                                            "Fix to Float Flag",
-                                            "Putable Flag",
-                                            "Issue Date",
-                                            "Last Reset Date",
-                                            "Maturity",
-                                            "Call Notification Max Days",
-                                            "Put Notification Max Days",
-                                            "Penultimate Coupon Date",
-                                            "Reset Frequency",
-                                            "Has Position",
-                                            "Macaulay Duration",
-                                            "30D Volatility",
-                                            "90D Volatility",
-                                            "Convexity",
-                                            "30D Average Volume",
-                                            "PF Asset Class",
-                                            "PF Country",
-                                            "PF Credit Rating",
-                                            "PF Currency",
-                                            "PF Instrument",
-                                            "PF Liquidity Profile",
-                                            "PF Maturity",
-                                            "PF NAICS Code",
-                                            "PF Region",
-                                            "PF Sector",
-                                            "PF Sub Asset Class",
-                                            "Bloomberg Industry Group",
-                                            "Bloomberg Industry Sub Group",
-                                            "Bloomberg Industry Sector",
-                                            "Country of Issuance",
-                                            "Issue Currency",
-                                            "Issuer",
-                                            "Issuer",
-                                            "Risk Currency",
-                                            "Put Date",
-                                            "Put Price",
-                                            "Ask Price",
-                                            "High Price",
-                                            "Low Price",
-                                            "Open Price",
-                                            "Volume",
-                                            "Bid Price",
-                                            "Last Price",
-                                            "Call Date",
-                                            "Call Price"
-                                          };
-            string[] ActualBondDBFieldNames = {
-                                             "security_name",
-                                            "security_description",
-                                            "has_position",
-                                            "is_active",
-                                            "round_lot_size",
-                                            "bloomberg_unique_name",
-                                            "cusip",
-                                            "isin",
-                                            "sedol",
-                                            "bloomberg_ticker",
-                                            "bloomberg_unique_id",
-                                            "bloomberg_global_id",
-                                            "bloombert_ticker_and_exchange",
-                                            "is_adr",
-                                            "adr_underlying_ticker",
-                                            "adr_underlying_currency",
-                                            "shares_per_adr",
-                                            "ipo_date",
-                                            "price_currency",
-                                            "settle_days",
-                                            "shares_outstanding",
-                                            "voting_rights_per_share",
-                                            "twenty_day_average_volume",
-                                            "beta",
-                                            "short_interest",
-                                            "ytd_return",
-                                            "ninty_day_price_volatility",
-                                            "form_pf_asset_class",
-                                            "form_pf_country",
-                                            "form_pf_credit_rating",
-                                            "form_pf_currency",
-                                            "form_pf_instrument",
-                                            "for_pf_liquid_profile",
-                                            "form_pf_maturity",
-                                            "form_pf_naics_code",
-                                            "form_pf_region",
-                                            "form_pf_sector",
-                                            "form_pf_sub_asset_class",
-                                            "issue_country",
-                                            "exchange",
-                                            "issuer",
-                                            "issue_currency",
-                                            "trading_currency",
-                                            "bloomberg_industry_sub_group",
-                                            "bloomberg_industry_group",
-                                            "bloomberg_industry_sector",
-                                            "country_of_incorporation",
-                                            "risk_currency",
-                                            "open_price",
-                                            "close_price",
-                                            "volume",
-                                            "last_price",
-                                            "ask_price",
-                                            "bid_price",
-                                            "pe_ratio",
-                                            "declared_date",
-                                            "ex_date",
-                                            "record_date",
-                                            "pay_date",
-                                            "amount",
-                                            "frequency",
-                                            "dividend_type"
-                                          };
+            //Console.Write(attributeHeadersSeperated[1]);
+            Console.Read();           
+           
         }
     }
 }
